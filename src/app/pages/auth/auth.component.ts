@@ -32,14 +32,12 @@ export class AuthComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const authType = params['authType'];
-      console.log({ authType });
       if (!authType) this.handleAuthSwitch('register');
       this.isLogin = authType === 'login';
     });
   }
 
   handleAuthSwitch(authType: string) {
-    console.log({ authType });
     this.router.navigate([], {
       queryParams: { authType },
     });
