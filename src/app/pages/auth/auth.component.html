@@ -1,26 +1,29 @@
 <form (ngSubmit)="onSubmit()">
-  <p>
-    <mat-form-field appearance="fill">
-      <mat-label>Fill form field</mat-label>
-      <input
-        matInput
-        [(ngModel)]="username"
-        placeholder="Name"
-        name="username"
-      />
-    </mat-form-field>
-  </p>
-  <p>
-    <mat-form-field appearance="fill">
-      <mat-label>Fill form field</mat-label>
-      <input
-        matInput
-        [(ngModel)]="password"
-        placeholder="Password"
-        name="pass"
-      />
-    </mat-form-field>
-  </p>
+  <div>
+    <mat-tab-group
+      (selectedTabChange)="handleAuthSwitch($event.tab.textLabel)"
+      mat-stretch-tabs="false"
+      mat-align-tabs="start"
+    >
+      <mat-tab label="login"></mat-tab>
+      <mat-tab label="register"></mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Fill form field</mat-label>
+    <input matInput [(ngModel)]="username" placeholder="Name" name="username" />
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Fill form field</mat-label>
+    <input
+      matInput
+      [(ngModel)]="password"
+      placeholder="Password"
+      name="pass"
+      type="password"
+    />
+  </mat-form-field>
 
   <button type="submit" mat-raised-button>Log in</button>
 </form>
