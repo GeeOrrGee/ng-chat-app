@@ -1,4 +1,8 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  importProvidersFrom,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -13,6 +17,7 @@ import {
   withInterceptors,
 } from '@angular/common/http';
 import { baseUrlInterceptor } from './interceptors/baseUrl.interceptor';
+import { SocketIoModule } from 'ngx-socket-io';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,5 +26,18 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideAnimationsAsync('noop'),
     provideHttpClient(withFetch(), withInterceptors([baseUrlInterceptor])),
+    importProvidersFrom(
+      SocketIoModule.forRoot({
+        url: 'http://localhost:50',
+        options: {
+          transports: ['websocket'],
+          autoConnect: false,
+          reconnectionAttempts: 3,
+          extraHeaders: {
+            origin: '*',
+          },
+        },
+      })
+    ),
   ],
 };

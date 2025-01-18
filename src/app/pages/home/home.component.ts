@@ -1,8 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { WebSocketService } from '../../ws.service';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
+import { WebSocketService } from '../../core/ws.service';
 
 @Component({
   selector: 'app-home',
@@ -11,13 +11,17 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './home.component.sass',
 })
 export class HomeComponent implements OnInit {
-  constructor(private socketService: WebSocketService) {}
+  private socketService = inject(WebSocketService);
+  constructor() {}
 
   errorOnConnect = signal(false);
   msg = signal('');
 
   ngOnInit(): void {
     this.socketService.connectSocket();
+    this.socketService.on('chat', (data) => {
+      console.log(data + ' received');
+    });
   }
 
   onSend() {
