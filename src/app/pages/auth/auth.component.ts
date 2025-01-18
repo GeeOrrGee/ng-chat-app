@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, effect, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -25,15 +25,15 @@ export class AuthComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
   ) {}
-  username = '';
-  password = '';
-  isLogin = false;
+  username = signal('');
+  password = signal('');
+  isLogin = signal(false);
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const authType = params['authType'];
       if (!authType) this.handleAuthSwitch('register');
-      this.isLogin = authType === 'login';
+      this.isLogin.set(authType === 'login');
     });
   }
 
@@ -44,7 +44,7 @@ export class AuthComponent implements OnInit {
   }
 
   validateFields() {
-    return this.password && this.username; //tmp
+    return this.password() && this.username(); //tmp
   }
 
   onSubmit() {
@@ -52,12 +52,14 @@ export class AuthComponent implements OnInit {
       window.alert('Enter the credentials first');
       return;
     }
-    const url = this.isLogin ? 'login' : 'register';
+    const url = this.isLogin() ? 'login' : 'register';
     this.httpClient
       .post(`/auth/${url}`, {
-        username: this.username,
-        password: this.password,
+        username: this.username(),
+        password: this.password(),
       })
-      .subscribe();
+      .subscribe((res) => {
+        console.log({ res });
+      });
   }
 }
