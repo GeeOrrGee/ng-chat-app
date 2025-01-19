@@ -4,7 +4,7 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
+import { JwtModule } from '@auth0/angular-jwt';
 import { routes } from './app.routes';
 import {
   provideClientHydration,
@@ -17,7 +17,7 @@ import {
   withInterceptors,
 } from '@angular/common/http';
 import { baseUrlInterceptor } from './interceptors/baseUrl.interceptor';
-import { SocketIoModule } from 'ngx-socket-io';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,15 +27,10 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync('noop'),
     provideHttpClient(withFetch(), withInterceptors([baseUrlInterceptor])),
     importProvidersFrom(
-      SocketIoModule.forRoot({
-        url: 'http://localhost:50',
-        options: {
-          transports: ['websocket'],
-          autoConnect: false,
-          reconnectionAttempts: 3,
-          extraHeaders: {
-            origin: '*',
-          },
+      JwtModule.forRoot({
+        config: {
+          tokenGetter: () => localStorage.getItem('token'),
+          allowedDomains: [environment.apiBaseUrl],
         },
       })
     ),

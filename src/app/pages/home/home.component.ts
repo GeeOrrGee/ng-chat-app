@@ -18,8 +18,7 @@ export class HomeComponent implements OnInit {
   msg = signal('');
 
   ngOnInit(): void {
-    this.socketService.connectSocket();
-    this.socketService.on('chat', (data) => {
+    this.socketService.on('chat', (data: any) => {
       console.log(data + ' received');
     });
   }

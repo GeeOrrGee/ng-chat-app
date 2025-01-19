@@ -1,11 +1,18 @@
-import { Component, effect, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
-import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../core/auth.service';
 MatTabChangeEvent;
 @Component({
   selector: 'app-auth',
@@ -20,20 +27,25 @@ MatTabChangeEvent;
   styleUrl: './auth.component.sass',
 })
 export class AuthComponent implements OnInit {
-  constructor(
-    private httpClient: HttpClient,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  constructor() {}
+
   username = signal('');
   password = signal('');
-  isLogin = signal(false);
+  selectedTabIndex = signal(0);
+  isLogin = computed(() => {
+    return this.selectedTabIndex() === 0;
+  });
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       const authType = params['authType'];
       if (!authType) this.handleAuthSwitch('register');
-      this.isLogin.set(authType === 'login');
+      this.selectedTabIndex.set(authType === 'login' ? 0 : 1);
+      console.log(this.isLogin());
     });
   }
 
@@ -52,14 +64,20 @@ export class AuthComponent implements OnInit {
       window.alert('Enter the credentials first');
       return;
     }
-    const url = this.isLogin() ? 'login' : 'register';
-    this.httpClient
-      .post(`/auth/${url}`, {
-        username: this.username(),
-        password: this.password(),
-      })
-      .subscribe((res) => {
-        console.log({ res });
-      });
+    const creds = {
+      username: this.username(),
+      password: this.password(),
+    };
+
+    (this.isLogin()
+      ? this.authService.login(creds)
+      : this.authService.register(creds)
+    ).subscribe((response: any) => {
+      if (response.success) {
+        this.router.navigate(['/']);
+      } else {
+        window.alert('Invalid credentials');
+      }
+    });
   }
 }
